@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guía rápida de Git</title>
+  <style>
+    :root { --bg:#ffffff; --card:#f3f4f6; --text:#1f2937; --muted:#6b7280; --accent:#f05133; --code:#111827; --codetext:#e5e7eb; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#0f172a; --card:#1e293b; --text:#f1f5f9; --muted:#94a3b8; --accent:#ff7a5c; --code:#020617; --codetext:#e2e8f0; }
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+    header { text-align:center; padding:2.5rem 1rem 1rem; }
+    h1 { margin:0; color:var(--accent); }
+    header p { color:var(--muted); }
+    main { max-width:900px; margin:0 auto; padding:1rem; }
+    #buscar { width:100%; padding:.8rem 1rem; font-size:1rem; border-radius:8px; border:1px solid var(--muted); background:var(--card); color:var(--text); margin-bottom:1.5rem; }
+    h2 { border-bottom:2px solid var(--accent); padding-bottom:.3rem; margin-top:2rem; }
+    .cmd { background:var(--card); border-radius:8px; padding:.8rem 1rem; margin:.6rem 0; }
+    .cmd p { margin:.3rem 0 0; color:var(--muted); font-size:.95rem; }
+    .linea { display:flex; gap:.5rem; align-items:center; }
+    code { flex:1; background:var(--code); color:var(--codetext); padding:.5rem .75rem; border-radius:6px; font-family:ui-monospace,Menlo,Consolas,monospace; overflow-x:auto; white-space:nowrap; }
+    button { background:var(--accent); color:#fff; border:0; padding:.45rem .8rem; border-radius:6px; cursor:pointer; }
+    footer { text-align:center; color:var(--muted); padding:2rem 1rem; font-size:.9rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Guía rápida de Git</h1>
+    <p>Los comandos esenciales para controlar versiones de tu código.</p>
+  </header>
+  <main>
+    <input id="buscar" type="search" placeholder="Buscar comando (ej: commit, branch, push)...">
+    <div id="lista"></div>
+  </main>
+  <footer>Hecho con HTML, CSS y JavaScript</footer>
+
+  <script>
+    const secciones = [
+      { titulo: "Configuración inicial", comandos: [
+        ["git config --global user.name \"Tu Nombre\"", "Define tu nombre de usuario."],
+        ["git config --global user.email \"tu@correo.com\"", "Define tu correo electrónico."],
+        ["git init", "Crea un repositorio nuevo en la carpeta actual."],
+        ["git clone <url>", "Descarga una copia de un repositorio remoto."]
+      ]},
+      { titulo: "Cambios y commits", comandos: [
+        ["git status", "Muestra el estado de los archivos."],
+        ["git add .", "Añade todos los cambios al área de preparación."],
+        ["git commit -m \"mensaje\"", "Guarda los cambios con un mensaje."],
+        ["git diff", "Muestra las diferencias sin confirmar."],
+        ["git log --oneline", "Lista el historial de commits resumido."]
+      ]},
+      { titulo: "Ramas", comandos: [
+        ["git branch", "Lista las ramas locales."],
+        ["git switch -c nueva-rama", "Crea una rama y cambia a ella."],
+        ["git switch main", "Cambia a la rama main."],
+        ["git merge nueva-rama", "Fusiona una rama en la actual."],
+        ["git branch -d nueva-rama", "Elimina una rama ya fusionada."]
+      ]},
+      { titulo: "Repositorios remotos", comandos: [
+        ["git remote add origin <url>", "Conecta tu repositorio con uno remoto."],
+        ["git push -u origin main", "Sube tus commits al remoto."],
+        ["git pull", "Descarga y fusiona cambios del remoto."],
+        ["git fetch", "Descarga cambios sin fusionarlos."]
+      ]},
+      { titulo: "Deshacer cambios", comandos: [
+        ["git restore archivo.txt", "Descarta cambios en un archivo."],
+        ["git restore --staged archivo.txt", "Quita un archivo del área de preparación."],
+        ["git revert <commit>", "Crea un commit que deshace otro."],
+        ["git stash", "Guarda cambios temporalmente."],
+        ["git stash pop", "Recupera los cambios guardados."]
+      ]}
+    ];
+
+    const lista = document.getElementById("lista");
+    const buscar = document.getElementById("buscar");
+
+    function pintar(filtro = "") {
+      const f = filtro.toLowerCase();
+      lista.innerHTML = "";
+      secciones.forEach(sec => {
+        const coincide = sec.comandos.filter(([c, d]) => (c + d).toLowerCase().includes(f));
+        if (!coincide.length) return;
+        const h2 = document.createElement("h2");
+        h2.textContent = sec.titulo;
+        lista.appendChild(h2);
+        coincide.forEach(([c, d]) => {
+          const div = document.createElement("div");
+          div.className = "cmd";
+          const linea = document.createElement("div");
+          linea.className = "linea";
+          const code = document.createElement("code");
+          code.textContent = c;
+          const btn = document.createElement("button");
+          btn.textContent = "Copiar";
+          btn.addEventListener("click", async () => {
+            try { await navigator.clipboard.writeText(c); btn.textContent = "¡Copiado!"; }
+            catch { btn.textContent = "Error"; }
+            setTimeout(() => btn.textContent = "Copiar", 1500);
+          });
+          const p = document.createElement("p");
+          p.textContent = d;
+          linea.append(code, btn);
+          div.append(linea, p);
+          lista.appendChild(div);
+        });
+      });
+      if (!lista.children.length) lista.textContent = "No se encontraron comandos.";
+    }
+
+    buscar.addEventListener("input", e => pintar(e.target.value));
+    pintar();
+  </script>
+</body>
+</html>
